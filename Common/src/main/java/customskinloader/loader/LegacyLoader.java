@@ -1,6 +1,8 @@
 package customskinloader.loader;
 
 import java.io.File;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -166,7 +168,7 @@ public class LegacyLoader implements ICustomSkinLoaderPlugin, ProfileLoader.IPro
         if (baseUrl == null || baseUrl.isEmpty()) {
             return;
         }
-        String url = expandURL(baseUrl, gameProfile.getName());
+        String url = this.expandURL(baseUrl, gameProfile.getName());
         //No texture can be loaded
         if (url == null) {
             return;
@@ -222,6 +224,15 @@ public class LegacyLoader implements ICustomSkinLoaderPlugin, ProfileLoader.IPro
 
     private String expandURL(String url, String username) {
         String t = url.replace(USERNAME_PLACEHOLDER, username);
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(username.getBytes());
+            byte[] digest = md.digest();
+            BigInteger bigInt = new BigInteger(1, digest);
+            String hash = bigInt.toString(16);
+            t = url.replace(USERNAME_PLACEHOLDER, hash);
+        } catch (Exception e) {
+        }
         if (!t.contains(UUID_PLACEHOLDER) && !t.contains(STANDARD_UUID_PLACEHOLDER)) {
             return t;
         }

@@ -1,6 +1,8 @@
 package customskinloader;
 
 import java.io.File;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -122,7 +124,16 @@ public class CustomSkinLoader {
         String credential = MinecraftUtil.getCredential(gameProfile);
 
         profileCache.setLoading(credential, true);
-        logger.info("Loading " + username + "'s profile.");
+        try {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(username.getBytes());
+            byte[] digest = md.digest();
+            BigInteger bigInt = new BigInteger(1, digest);
+            String hash = bigInt.toString(16);
+            
+            logger.info("Loading " + username + "'s profile (" + hash + ")");
+        } catch (Exception e) {}
+
         if (config.loadlist == null || config.loadlist.isEmpty()) {
             logger.info("LoadList is Empty.");
             return null;
